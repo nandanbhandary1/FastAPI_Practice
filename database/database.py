@@ -13,7 +13,6 @@ sessionLocal = sessionmaker(autoflush=False, expire_on_commit=False, bind=engine
 Base = declarative_base()
 
 
-
 # sessionmaker
 # → Used to create sessions (connections) to perform operations like:
 
