@@ -7,11 +7,13 @@ from models import users
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import timedelta, datetime, timezone
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 router = APIRouter()
 
-SECRET_KEY = ">n20;)JWP)gv)%?sv]t7b2t8mMSvS05_gQ|rGml/mu.3q$ahX_|^_r|D/w%#m,a]**]L;ksqgx_B7UaH9]x&Z-"
-ALGORITHM = "HS256"
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -65,7 +67,7 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta):
     payload = {"sub": username, "id": user_id}
     expires = datetime.now(timezone.utc) + expires_delta
     payload.update({"exp": expires})
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(payload, os.environ.get("SECRET_KEY"), algorithm=os.environ.get("ALGORITHM"))
 
 
 def authenticate_user(username: str, password: str, db: db_dependency):

@@ -4,18 +4,24 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from models import Todos
 from pydantic import BaseModel, Field
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
+
+from dependencies.auth_dependency import get_current_user
 
 router = APIRouter()
 
 
 def get_db():
-    db = sessionLocal() # Opens connection to database
+    db = sessionLocal()  # Opens connection to database
     try:
-        yield db # Sends this db to your route function
+        yield db  # Sends this db to your route function
     finally:
-        db.close() # Closes connection
+        db.close()  # Closes connection
+
 
 db_dependency = Annotated[Session, Depends(get_db)]
+
 
 class TodoRequest(BaseModel):
     title: str = Field(min_length=3)
@@ -24,12 +30,13 @@ class TodoRequest(BaseModel):
     complete: bool
 
 
-
-
-
 @router.get("/")
-async def read_all(db: db_dependency):
-    return db.query(Todos).all()
+async def read_all(db: db_dependency, user: Annotated[dict, Depends(get_current_user)]):
+    # return db.query(Todos).all()
+    print(user)
+    print(user["sub"])
+    print(user["id"])
+    return {"msg": "All todos here"}
 
 
 @router.get("/todo/{todo_id}")
@@ -74,4 +81,3 @@ async def delete_todo(db: db_dependency, todoo_id: int = Path(gt=0)):
     db.query(Todos).filter(Todos.id == todoo_id).delete()
     db.commit()
     return Response(content="BOOK DELETED", status_code=status.HTTP_204_NO_CONTENT)
-
