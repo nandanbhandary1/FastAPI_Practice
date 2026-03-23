@@ -1,9 +1,9 @@
 from typing import Annotated
-from database import sessionLocal
+from database.database import sessionLocal
 from sqlalchemy.orm import Session
 from fastapi import Depends, FastAPI, APIRouter, status
 from pydantic import BaseModel, Field
-from models import users
+from database.models import users
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import timedelta, datetime, timezone

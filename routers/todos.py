@@ -1,8 +1,8 @@
 from fastapi import Depends, status, Path, HTTPException, Response, APIRouter
-from database import sessionLocal
+from database.database import sessionLocal
 from typing import Annotated
 from sqlalchemy.orm import Session
-from models import Todos
+from database.models import Todos
 from pydantic import BaseModel, Field
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
