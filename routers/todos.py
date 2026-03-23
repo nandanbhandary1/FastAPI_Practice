@@ -1,5 +1,4 @@
 from fastapi import Depends, status, Path, HTTPException, Response, APIRouter
-import models
 from database import sessionLocal
 from typing import Annotated
 from sqlalchemy.orm import Session
@@ -10,11 +9,13 @@ router = APIRouter()
 
 
 def get_db():
-    db = sessionLocal()
+    db = sessionLocal() # Opens connection to database
     try:
-        yield db
+        yield db # Sends this db to your route function
     finally:
-        db.close()
+        db.close() # Closes connection
+
+db_dependency = Annotated[Session, Depends(get_db)]
 
 class TodoRequest(BaseModel):
     title: str = Field(min_length=3)
@@ -23,7 +24,7 @@ class TodoRequest(BaseModel):
     complete: bool
 
 
-db_dependency = Annotated[Session, Depends(get_db)]
+
 
 
 @router.get("/")
