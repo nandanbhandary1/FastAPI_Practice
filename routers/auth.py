@@ -1,7 +1,7 @@
 from typing import Annotated
 from database.database import sessionLocal
 from sqlalchemy.orm import Session
-from fastapi import Depends, FastAPI, APIRouter, status
+from fastapi import Depends, APIRouter, status
 from pydantic import BaseModel, Field
 from database.models import users
 from passlib.context import CryptContext
@@ -9,11 +9,10 @@ from jose import jwt
 from datetime import timedelta, datetime, timezone
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
-
-router = APIRouter()
-
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -24,6 +23,7 @@ def get_db():
         yield db  # Sends this db to your route function
     finally:
         db.close()  # Closes connection
+
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
@@ -47,7 +47,7 @@ class LoginSuccess(BaseModel):
     type: str
 
 
-@router.post("/auth", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def auth(db: db_dependency, create_user: UserCreate):
     # user_model = users(**create_user.model_dump())
     user_model = users(
@@ -67,7 +67,9 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta):
     payload = {"sub": username, "id": user_id}
     expires = datetime.now(timezone.utc) + expires_delta
     payload.update({"exp": expires})
-    return jwt.encode(payload, os.environ.get("SECRET_KEY"), algorithm=os.environ.get("ALGORITHM"))
+    return jwt.encode(
+        payload, os.environ.get("SECRET_KEY"), algorithm=os.environ.get("ALGORITHM")
+    )
 
 
 def authenticate_user(username: str, password: str, db: db_dependency):
