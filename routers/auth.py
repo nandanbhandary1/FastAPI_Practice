@@ -35,6 +35,7 @@ class UserCreate(BaseModel):
     last_name: str | None = None
     password: str = Field(min_length=5, max_length=20)
     role: str
+    phone_number: int | None = None
 
 
 class LoginRequest(BaseModel):
